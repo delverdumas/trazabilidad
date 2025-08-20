@@ -1,0 +1,82 @@
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+  <h2 class="dashboard-title text-center mb-4">Despachos realizados</h2>
+
+  
+
+  <% if (dispatches && dispatches.length > 0) { %>
+    <div class="chart-container" style="position: relative; height:400px; width:100%;">
+      <canvas id="dispatchesChart"></canvas>
+    </div>
+  <% } else { %>
+    <p class="text-center">No hay despachos registrados.</p>
+  <% } %>
+</div>
+
+<!-- Inyección de datos -->
+<script id="dispatches-data" type="application/json">
+<%
+  const labels = dispatches.map(d => {
+    const fecha = new Date(d.dispatch_date).toISOString().slice(0, 10);
+    return `🚚 Despacho #${d.dispatch_id} – ${d.client_name} - ${fecha}\\nPedido #${d.order_id}`;
+  });
+
+  const dataset = {
+    label: 'Total de paletas despachadas',
+    data: dispatches.map(d => d.total_quantity || 0),
+    backgroundColor: 'rgba(54, 162, 235, 0.7)'
+  };
+
+  const chartData = { labels, datasets: [dataset] };
+%>
+<%- JSON.stringify(chartData) %>
+</script>
+
+<!-- Chart.js y DataLabels -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script>
+  Chart.register(ChartDataLabels);
+
+  const rawData = document.getElementById('dispatches-data');
+  if (rawData) {
+    const parsed = JSON.parse(rawData.textContent);
+    const ctx = document.getElementById('dispatchesChart').getContext('2d');
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: parsed,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          datalabels: {
+            display: ctx => ctx.dataset.data[ctx.dataIndex] > 0,
+            color: 'white',
+            anchor: 'center',
+            align: 'center',
+            font: { weight: 'bold', size: 12 },
+            formatter: value => value
+          }
+        },
+        scales: {
+          x: {
+            stacked: false,
+            ticks: {
+              callback: function(value) {
+                const label = this.getLabelForValue(value);
+                return label.split('\\n');
+              },
+              maxRotation: 0,
+              minRotation: 0
+            }
+          },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+</script>
+
+<%- include('partials/footer') %>

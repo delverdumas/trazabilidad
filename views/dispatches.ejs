@@ -1,0 +1,48 @@
+<%- include('partials/header') %>
+
+<div class="table-container">
+  <div class="actions">
+    <a href="/dispatches/new" class="btn btn-edit">Nuevo Despacho</a>
+  </div>
+
+  <h1 class="page-title">Listado de Despachos</h1>
+
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Pedido</th>
+          <th>Cliente</th>
+          <th>Transportista</th>
+          <th>Contenedor</th>
+          <th>Puerto</th>
+          <th>País Destino</th>
+          <th>Paletas</th>
+          <th>Fecha y Hora Despacho</th>
+          <th>Acciones</th> <!-- Nueva columna -->
+        </tr>
+      </thead>
+      <tbody>
+        <% dispatches.forEach(d => { %>
+          <tr>
+            <td><%= d.dispatch_id %></td>
+            <td><%= d.order_id %></td>
+            <td><%= d.client_name %></td>
+            <td><%= d.transportista %></td>
+            <td><%= d.container_number %></td>
+            <td><%= d.puerto_destino %></td>
+            <td><%= d.pais_destino %></td>
+            <td><%= d.total_paletas %></td>
+            <td><%= new Date(d.created_at).toLocaleString() %></td>
+            <td>
+              <a href="/dispatches/edit/<%= d.dispatch_id %>" class="btn btn-primary btn-sm">Editar</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,19 @@
+<!-- views/errors/403.ejs -->
+<%- include('../partials/header') %>
+
+<div class="container" style="max-width:700px;margin:2rem auto;">
+  <div class="card" style="padding:1.25rem;">
+    <h2 style="margin:0 0 .5rem 0;">Acceso denegado</h2>
+    <p>No tienes acceso a este sitio o acción con tu rol actual.</p>
+
+    <% if (user) { %>
+      <p><strong>Usuario:</strong> <%= user.nombre || user.username || '—' %> &nbsp; | &nbsp; <strong>Rol:</strong> <%= user.role %></p>
+    <% } %>
+
+    <div style="margin-top:1rem;">
+      <a href="/dashboard" class="btn btn-primary">Volver al panel</a>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

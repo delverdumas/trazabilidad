@@ -1,0 +1,110 @@
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+  <h2 class="dashboard-title text-center mb-4">Pedidos realizados por semana</h2>
+
+  <!-- Selector de semana -->
+  <form method="GET" action="/reports/orders" class="mb-4">
+    <div class="row justify-content-center">
+      <div class="col-md-4">
+        <select id="week" name="week" class="form-control" required>
+          <% weeks.forEach(week => { %>
+            <option value="<%= week %>" <%= selectedWeek == week ? 'selected' : '' %>>
+              Semana <%= week %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <select id="status" name="status" class="form-control">
+          <option value="TODOS" <%= selectedStatus == 'TODOS' ? 'selected' : '' %>>Todos</option>
+          <option value="PENDING" <%= selectedStatus == 'PENDING' ? 'selected' : '' %>>Pendiente</option>
+          <option value="DISPATCHED" <%= selectedStatus == 'DISPATCHED' ? 'selected' : '' %>>Despachado</option>
+          <option value="ELIMINADO" <%= selectedStatus == 'ELIMINADO' ? 'selected' : '' %>>Eliminado</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Ver reporte</button>
+      </div>
+    </div>
+  </form>
+
+  <% if (orders && orders.length > 0) { %>
+    <div class="chart-container" style="position: relative; height:400px; width:100%;">
+      <canvas id="ordersChart"></canvas>
+    </div>
+  <% } else if (selectedWeek) { %>
+    <p class="text-center">No hay pedidos registrados para la semana <strong><%= selectedWeek %></strong>.</p>
+  <% } %>
+</div>
+
+<!-- Inyección de datos -->
+<script id="orders-data" type="application/json">
+<%
+  const labels = orders.map(o => {
+    if (o.status === 'PENDING') return `🟡 Pedido #${o.order_id} – ${o.client_name}`;
+    if (o.status === 'DISPATCHED') return `🟢 Pedido #${o.order_id} – ${o.client_name}`;
+    if (o.status === 'ELIMINADO') return `🔴 Pedido #${o.order_id} – ${o.client_name}`;
+    return `Pedido #${o.order_id} – ${o.client_name}`;
+  });
+
+  const calibres = [5, 6, 7, 8, 9, 10];
+  const colors = [
+    'rgba(255, 99, 132, 0.7)',   // Calibre 5
+    'rgba(255, 159, 64, 0.7)',   // Calibre 6
+    'rgba(255, 205, 86, 0.7)',   // Calibre 7
+    'rgba(75, 192, 192, 0.7)',   // Calibre 8
+    'rgba(54, 162, 235, 0.7)',   // Calibre 9
+    'rgba(153, 102, 255, 0.7)'   // Calibre 10
+  ];
+
+  const datasets = calibres.map((cal, i) => ({
+    label: `Calibre ${cal}`,
+    data: orders.map(o =>
+      (o[`gp_calibre${cal}`] || 0) + (o[`cl_calibre${cal}`] || 0)
+    ),
+    backgroundColor: colors[i]
+  }));
+
+  const chartData = { labels, datasets };
+%>
+<%- JSON.stringify(chartData) %>
+</script>
+
+<!-- Chart.js y DataLabels -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script>
+  Chart.register(ChartDataLabels);
+
+  const rawData = document.getElementById('orders-data');
+  if (rawData) {
+    const parsed = JSON.parse(rawData.textContent);
+    const ctx = document.getElementById('ordersChart').getContext('2d');
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: parsed,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          datalabels: {
+            display: ctx => ctx.dataset.data[ctx.dataIndex] > 0,
+            color: 'white',
+            anchor: 'center',
+            align: 'center',
+            font: { weight: 'bold', size: 12 },
+            formatter: value => value
+          }
+        },
+        scales: {
+          x: { stacked: true },
+          y: { stacked: true, beginAtZero: true }
+        }
+      }
+    });
+  }
+</script>
+
+<%- include('partials/footer') %>

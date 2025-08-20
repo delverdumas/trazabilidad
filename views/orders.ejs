@@ -1,0 +1,117 @@
+<%- include('partials/header') %>
+
+<!-- Contenedor principal para la lista de pedidos -->
+<div class="table-container">
+
+  <!-- Acción rápida: crear un nuevo pedido -->
+  <div class="actions mb-3">
+    <a href="/orders/create" class="btn btn-edit">Crear Pedido</a>
+  </div>
+
+  <!-- Filtro por estado -->
+  <div class="filter-bar mb-4">
+    <label for="statusFilter" class="form-label">Filtrar por estado:</label>
+    <select id="statusFilter" class="form-select" style="max-width: 200px;">
+      <option value="">Todos</option>
+      <!-- Importante: los values son los CÓDIGOS que vienen de la BD -->
+      <option value="PENDING">Pendiente</option>
+      <option value="DISPATCHED">Despachado</option>
+      <option value="ELIMINATED">Eliminado</option>
+    </select>
+  </div>
+
+  <!-- Título de la página -->
+  <h1 class="page-title mb-3">Listado de Pedidos</h1>
+
+  <!-- Tabla responsiva de pedidos -->
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Cartón</th>
+          <th>Altura</th>
+          <th>Semana</th>
+          <th>Cantidad</th>
+          <th>Estado</th>
+          <% for (let c = 5; c <= 10; c++) { %>
+            <th>GP <%= c %></th>
+          <% } %>
+          <% for (let c = 5; c <= 10; c++) { %>
+            <th>CL <%= c %></th>
+          <% } %>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% 
+          // Mapa de traducción de códigos de estado -> etiquetas en español
+          const STATUS_LABELS = {
+            PENDING:    "Pendiente",
+            DISPATCHED: "Despachado",
+            ELIMINATED: "Eliminado",
+            ELIMINADO:  "Eliminado" // por si en la BD viene en español
+          };
+        %>
+
+        <% orders.forEach(order => { 
+             const statusCode  = (order.status || "").toUpperCase();          // ej. "PENDING"
+             const statusClass = statusCode.toLowerCase();                    // ej. "pending"
+             const statusLabel = STATUS_LABELS[statusCode] || statusCode;     // ej. "Pendiente"
+        %>
+          <tr>
+            <td><%= order.order_id %></td>
+            <td><%= order.client_name %></td>
+            <td><%= order.carton_type %></td>
+            <td><%= order.height %></td>
+            <td><%= order.week %></td>
+            <td><%= order.quantity %></td>
+            <td>
+              <!-- Mostramos etiqueta en español pero guardamos el código para el filtro -->
+              <span 
+                class="status <%= statusClass %>" 
+                data-status-code="<%= statusCode %>"
+              >
+                <%= statusLabel %>
+              </span>
+            </td>
+
+            <% for (let c = 5; c <= 10; c++) { %>
+              <td><%= order['gp_calibre' + c] %></td>
+            <% } %>
+            <% for (let c = 5; c <= 10; c++) { %>
+              <td><%= order['cl_calibre' + c] %></td>
+            <% } %>
+
+            <td class="actions-cell">
+              <% if (statusCode !== 'DISPATCHED') { %>
+                <a href="/orders/<%= order.order_id %>/edit" class="btn btn-edit-sm">Editar</a>
+                <form action="/orders/<%= order.order_id %>/delete" method="POST" class="d-inline">
+                  <button type="submit" class="btn btn-delete-sm" onclick="return confirm('¿Eliminar este pedido?')">
+                    Eliminar
+                  </button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// Filtrar por estado en la tabla usando el CÓDIGO del estado (data-status-code)
+// Esto hace que el filtro funcione aunque el texto visible esté en español.
+document.getElementById('statusFilter').addEventListener('change', function() {
+  const selected = this.value.trim().toUpperCase(); // "", "PENDING", etc.
+  document.querySelectorAll('.custom-table tbody tr').forEach(row => {
+    const badge = row.querySelector('td:nth-child(7) .status');
+    const code  = (badge?.dataset?.statusCode || '').toUpperCase();
+    row.style.display = (!selected || code === selected) ? '' : 'none';
+  });
+});
+</script>
+
+<%- include('partials/footer') %>

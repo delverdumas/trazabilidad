@@ -1,0 +1,30 @@
+<%- include('partials/header') %>
+
+<h2>Editar Despacho #<%= dispatch.dispatch_id %></h2>
+
+<form action="/dispatches/edit/<%= dispatch.dispatch_id %>" method="POST">
+  <div class="form-group">
+    <label for="transportista">Transportista:</label>
+    <input type="text" class="form-control" id="transportista" name="transportista" value="<%= dispatch.transportista %>" required>
+  </div>
+
+  <div class="form-group">
+    <label for="puerto_destino">Puerto:</label>
+    <input type="text" class="form-control" id="puerto_destino" name="puerto_destino" value="<%= dispatch.puerto_destino %>" required>
+  </div>
+
+  <div class="form-group">
+    <label for="container_number">Número de Contenedor:</label>
+    <input type="text" class="form-control" id="container_number" name="container_number" value="<%= dispatch.container_number %>" required>
+  </div>
+
+  <div class="form-group">
+    <label for="pais_destino">País:</label>
+    <input type="text" class="form-control" id="pais_destino" name="pais_destino" value="<%= dispatch.pais_destino %>" required>
+  </div>
+
+  <button type="submit" class="btn btn-success">Guardar Cambios</button>
+  <a href="/dispatches" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<%- include('partials/footer') %>

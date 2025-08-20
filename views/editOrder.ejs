@@ -1,0 +1,145 @@
+<!-- views/editOrder.ejs -->
+<%- include('partials/header') %>
+
+<h1>Editar Pedido #<%= order.order_id %></h1>
+
+<form id="orderForm" action="/orders/<%= order.order_id %>/edit" method="POST">
+  <!-- Cliente -->
+  <div class="form-group">
+    <label for="client_id">Cliente:</label>
+    <select name="client_id" id="client_id" class="form-control" required>
+      <% clients.forEach(c => { %>
+        <option value="<%= c.client_id %>" <%= c.client_id === order.client_id ? 'selected' : '' %>>
+          <%= c.name %>
+        </option>
+      <% }) %>
+    </select>
+  </div>
+
+  <!-- Cartón -->
+  <div class="form-group">
+    <label for="carton_type_id">Tipo de Cartón:</label>
+    <select name="carton_type_id" id="carton_type_id" class="form-control" required>
+      <% cartonTypes.forEach(ct => { %>
+        <option value="<%= ct.carton_type_id %>" <%= ct.carton_type_id === order.carton_type_id ? 'selected' : '' %>>
+          <%= ct.name %>
+        </option>
+      <% }) %>
+    </select>
+  </div>
+
+  <!-- Altura -->
+  <div class="form-group">
+    <label for="height_id">Altura:</label>
+    <select name="height_id" id="height_id" class="form-control" required>
+      <% heights.forEach(h => { %>
+        <option value="<%= h.height_id %>" <%= h.height_id === order.height_id ? 'selected' : '' %>>
+          <%= h.quantity %>
+        </option>
+      <% }) %>
+    </select>
+  </div>
+
+  <!-- Semana -->
+  <div class="form-group">
+    <label for="week">Semana:</label>
+    <input type="number" name="week" id="week" class="form-control" value="<%= order.week %>" min="1" max="53" required />
+  </div>
+
+  <!-- Cantidad -->
+  <div class="form-group">
+    <label for="quantity">Cantidad:</label>
+    <input type="number" name="quantity" id="quantity" class="form-control" value="<%= order.quantity %>" required />
+  </div>
+
+  <!-- Selección de estado del pedido con opción actual seleccionada -->
+  <div class="form-group">
+    <label for="status">Estado:</label>
+    <select name="status" id="status" class="form-control">
+      <option value="PENDING" <%= order.status === 'PENDING' ? 'selected' : '' %>>
+        PENDING
+      </option>
+      <option value="ELIMINADO" <%= order.status === 'ELIMINADO' ? 'selected' : '' %>>
+        ELIMINADO
+      </option>
+    </select>
+  </div>
+
+  <!-- GP -->
+  <h3>Tipo de Pedido GP</h3>
+  <div class="calibres-group">
+    <% for (let c = 5; c <= 10; c++) { %>
+      <div class="form-group calibre-input">
+        <label for="gp_calibre<%= c %>">Calibre <%= c %>:</label>
+        <input
+          type="number"
+          name="gp_calibre<%= c %>"
+          id="gp_calibre<%= c %>"
+          class="form-control gp-field"
+          value="<%= order['gp_calibre' + c] || 0 %>"
+          min="0"
+        />
+      </div>
+    <% } %>
+  </div>
+
+  <!-- CL -->
+  <h3>Tipo de Pedido CL</h3>
+  <div class="calibres-group">
+    <% for (let c = 5; c <= 10; c++) { %>
+      <div class="form-group calibre-input">
+        <label for="cl_calibre<%= c %>">Calibre <%= c %>:</label>
+        <input
+          type="number"
+          name="cl_calibre<%= c %>"
+          id="cl_calibre<%= c %>"
+          class="form-control cl-field"
+          value="<%= order['cl_calibre' + c] || 0 %>"
+          min="0"
+        />
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Botón -->
+  <button type="submit" class="btn btn-primary">Actualizar Pedido</button>
+</form>
+
+<script>
+  document.getElementById('orderForm').addEventListener('submit', function(e) {
+    const qty = parseInt(document.getElementById('quantity').value, 10) || 0;
+    const heightSel = document.getElementById('height_id');
+    const heightQty = parseInt(heightSel.options[heightSel.selectedIndex].text, 10);
+
+    // 1. Cantidad debe ser múltiplo de altura
+    if (qty % heightQty !== 0) {
+      e.preventDefault();
+      alert(`La cantidad total (${qty}) debe ser un múltiplo de la altura seleccionada (${heightQty}).`);
+      return;
+    }
+
+    // 2. Cada calibre múltiplo de altura
+    let sum = 0;
+    let invalid = false;
+    document.querySelectorAll('.gp-field, .cl-field').forEach(input => {
+      const val = parseInt(input.value, 10) || 0;
+      if (val % heightQty !== 0) {
+        invalid = true;
+        alert(`El valor de "${input.previousElementSibling.textContent}" debe ser múltiplo de ${heightQty}.`);
+      }
+      sum += val;
+    });
+    if (invalid) {
+      e.preventDefault();
+      return;
+    }
+
+    // 3. Suma exacta
+    if (sum !== qty) {
+      e.preventDefault();
+      alert(`La suma de calibres (${sum}) debe ser EXACTAMENTE igual a la cantidad total (${qty}).`);
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>

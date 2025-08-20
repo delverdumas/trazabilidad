@@ -1,0 +1,34 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <!-- Título -->
+  <h2 class="dashboard-title">Reportes</h2>
+
+  <div class="dashboard-cards">
+    <!-- Pedidos realizados -->
+    <a href="/reports/orders" class="card dashboard-link">
+      <div class="card-icon">📦</div>
+      <div class="card-label text-center">Pedidos realizados</div>
+    </a>
+
+    <!-- Saldo en cámara -->
+    <a href="/reports/camera" class="card dashboard-link">
+      <div class="card-icon">🧊</div>
+      <div class="card-label text-center">Saldo en cámara</div>
+    </a>
+
+    <!-- Faltantes -->
+    <a href="/reports/faltantes" class="card dashboard-link">
+      <div class="card-icon">⚠️</div>
+      <div class="card-label text-center">Faltantes</div>
+    </a>
+
+    <!-- Despachos -->
+    <a href="/reports/dispatches" class="card dashboard-link">
+      <div class="card-icon">🚚</div>
+      <div class="card-label text-center">Despachos</div>
+    </a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

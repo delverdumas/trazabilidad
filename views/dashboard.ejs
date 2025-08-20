@@ -1,0 +1,68 @@
+<!-- views/dashboard.ejs -->
+<%- include('partials/header', { hideNav: true, hideUserMini: true }) %>
+
+<!-- Encabezado de sesión (incluye solo el botón rojo) -->
+<section class="dashboard-head" style="display:flex;justify-content:space-between;align-items:center;margin:20px 0;">
+  <div class="dashboard-greeting">
+    👋 Hola, <strong><%= user ? (user.nombre || user.username) : 'Invitado' %></strong>
+  </div>
+  <div class="dashboard-actions">
+    <a href="/login/logout" class="btn-logout" style="padding:8px 14px;background:#e74c3c;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;">
+      Cerrar sesión
+    </a>
+  </div>
+</section>
+
+<h2 class="dashboard-title" style="text-align:center;margin:10px 0 22px;">Bienvenido</h2>
+
+<!-- Las 5 tarjetas -->
+<section class="dashboard-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:22px;max-width:980px;margin:0 auto 28px;">
+  <a href="/dispatches" class="card dashboard-link" data-roles="DISPATCH,ADMIN" style="display:block;padding:18px 16px;border:1px solid #e0e0e0;border-radius:12px;text-decoration:none;text-align:center;">
+    <div class="card-icon" style="font-size:2rem;margin-bottom:10px;">🚚</div>
+    <div class="card-label" style="font-weight:800;">DESPACHOS</div>
+  </a>
+
+  <a href="/production" class="card dashboard-link" data-roles="TRAZABILIDAD,ADMIN" style="display:block;padding:18px 16px;border:1px solid #e0e0e0;border-radius:12px;text-decoration:none;text-align:center;">
+    <div class="card-icon" style="font-size:2rem;margin-bottom:10px;">🏭</div>
+    <div class="card-label" style="font-weight:800;">PRODUCCIÓN</div>
+  </a>
+
+  <a href="/orders" class="card dashboard-link" data-roles="TRAZABILIDAD,ADMIN" style="display:block;padding:18px 16px;border:1px solid #e0e0e0;border-radius:12px;text-decoration:none;text-align:center;">
+    <div class="card-icon" style="font-size:2rem;margin-bottom:10px;">📦</div>
+    <div class="card-label" style="font-weight:800;">PEDIDOS</div>
+  </a>
+
+  <a href="/reports" class="card dashboard-link" data-roles="TRAZABILIDAD,ADMIN" style="display:block;padding:18px 16px;border:1px solid #e0e0e0;border-radius:12px;text-decoration:none;text-align:center;">
+    <div class="card-icon" style="font-size:2rem;margin-bottom:10px;">📊</div>
+    <div class="card-label" style="font-weight:800;">REPORTES</div>
+  </a>
+
+  <a href="/users" class="card dashboard-link" data-roles="ADMIN" style="display:block;padding:18px 16px;border:1px solid #e0e0e0;border-radius:12px;text-decoration:none;text-align:center;">
+    <div class="card-icon" style="font-size:2rem;margin-bottom:10px;">👤</div>
+    <div class="card-label" style="font-weight:800;">USUARIOS</div>
+  </a>
+</section>
+
+<!-- Guard de UI (alerta si el rol no coincide) -->
+<script>
+  (function () {
+    window.CURRENT_ROLE = "<%= (user && user.role) ? user.role : '' %>";
+    function canAccess(el) {
+      const allowed = (el.getAttribute('data-roles') || '').split(',').map(s => s.trim()).filter(Boolean);
+      const role = (window.CURRENT_ROLE || '').trim();
+      if (!role || !allowed.length) return true;
+      return allowed.includes(role);
+    }
+    document.addEventListener('click', function (ev) {
+      const link = ev.target.closest('a[data-roles]');
+      if (!link) return;
+      if (!canAccess(link)) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        alert('No tienes acceso a este sitio con tu rol actual.');
+      }
+    }, true);
+  })();
+</script>
+
+<%- include('partials/footer') %>

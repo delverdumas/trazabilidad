@@ -1,0 +1,62 @@
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+  <h2 class="dashboard-title text-center mb-4">Saldo en cámara por pedido</h2>
+  <div class="chart-container" style="position: relative; height:400px; width:100%;">
+    <canvas id="cameraChart"></canvas>
+  </div>
+</div>
+
+<!-- Inyectamos los datos en JSON puro -->
+<script id="camera-data" type="application/json">
+<%- JSON.stringify({ labels, datasets }) %>
+</script>
+
+<!-- Chart.js y plugin para DataLabels -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script>
+  // Registrar el plugin
+  Chart.register(ChartDataLabels);
+
+  // Parsear los datos inyectados
+  const cameraData = JSON.parse(
+    document.getElementById('camera-data').textContent
+  );
+  const labels   = cameraData.labels;
+  const datasets = cameraData.datasets;
+
+  // Crear el gráfico
+  const ctx = document.getElementById('cameraChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: datasets.map(ds => ({
+        label: ds.label,
+        data: ds.data
+      }))
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' },
+        datalabels: {
+          // Solo mostrar etiqueta si el valor es > 0
+          display: ctx => ctx.dataset.data[ctx.dataIndex] > 0,
+          color: 'white',
+          formatter: value => value,
+          anchor: 'center',
+          align: 'center',
+          font: { weight: 'bold', size: 12 }
+        }
+      },
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true, beginAtZero: true }
+      }
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>

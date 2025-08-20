@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+<%- include('../partials/messages') %>
+<div class="container d-flex flex-column align-items-center mt-4">
+  <h1 class="display-4 mb-3">Editar Paleta #<%= pallet.numero_paleta %></h1>
+  <form action="/production/<%= pallet.numero_paleta %>/edit" method="post" class="w-50">
+    <div class="mb-3">
+      <label class="form-label">Pedido:</label>
+      <input type="text" class="form-control" value="Pedido #<%= pallet.order_id %>" disabled>
+    </div>
+    <div class="text-center mb-3">
+      <p><strong>Cliente:</strong> <%= order.client_name %></p>
+      <p><strong>Tipo de Cartón:</strong> <%= order.carton_type_name %></p>
+      <p><strong>Altura Máxima:</strong> <%= order.height %></p>
+    </div>
+    <% if (gpCalibers.length) { %>
+      <fieldset class="mb-3"><legend>GP</legend>
+        <% gpCalibers.forEach(item => { %>
+          <div class="mb-2">
+            <label for="cantidad_gp_<%= item.calibre %>"><%= item.calibre %> GP</label>
+            <input id="cantidad_gp_<%= item.calibre %>" name="cantidad_gp_<%= item.calibre %>" type="number" class="form-control" min="0" max="<%= order.height %>" value="<%= pallet['cantidad_gp_'+item.calibre] %>">
+          </div>
+        <% }) %>
+      </fieldset>
+    <% } %>
+    <% if (clCalibers.length) { %>
+      <fieldset class="mb-3"><legend>CL</legend>
+        <% clCalibers.forEach(item => { %>
+          <div class="mb-2">
+            <label for="cantidad_cl_<%= item.calibre %>"><%= item.calibre %> CL</label>
+            <input id="cantidad_cl_<%= item.calibre %>" name="cantidad_cl_<%= item.calibre %>" type="number" class="form-control" min="0" max="<%= order.height %>" value="<%= pallet['cantidad_cl_'+item.calibre] %>">
+          </div>
+        <% }) %>
+      </fieldset>
+    <% } %>
+    <div class="text-center">
+      <button type="submit" class="btn btn-success">Guardar Cambios</button>
+    </div>
+  </form>
+</div>
+<%- include('../partials/footer') %>

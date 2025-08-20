@@ -1,0 +1,100 @@
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+  <h2 class="dashboard-title text-center mb-4">Faltantes por Pedido y Calibre</h2>
+
+  <!-- GP -->
+  <div class="mb-5">
+    <h4 class="text-center mb-3 text-primary">Faltantes GP</h4>
+    <div class="chart-container" style="position: relative; height:400px;">
+      <canvas id="gpChart"></canvas>
+    </div>
+  </div>
+
+  <!-- CL -->
+  <div class="mb-5">
+    <h4 class="text-center mb-3 text-danger">Faltantes CL</h4>
+    <div class="chart-container" style="position: relative; height:400px;">
+      <canvas id="clChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Datos -->
+<script id="faltantes-data" type="application/json">
+<%- JSON.stringify({ labels, datasets }) %>
+</script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<script>
+  Chart.register(ChartDataLabels);
+
+  const raw = JSON.parse(document.getElementById('faltantes-data').textContent);
+  const labels = raw.labels;
+  const gpDatasets = raw.datasets.filter(ds => ds.label.includes('GP'));
+  const clDatasets = raw.datasets.filter(ds => ds.label.includes('CL'));
+
+  // Paleta de colores por calibre
+  const colorMap = {
+    5: '#4e79a7',
+    6: '#59a14f',
+    7: '#f1ce63',
+    8: '#f28e2b',
+    9: '#e15759',
+    10: '#b07aa1'
+  };
+
+  function getColorFromLabel(label) {
+    const match = label.match(/\d+/); // Extrae el número del calibre
+    return match ? colorMap[match[0]] || 'gray' : 'gray';
+  }
+
+  function buildChart(canvasId, datasets) {
+    new Chart(document.getElementById(canvasId).getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: datasets.map(ds => ({
+          ...ds,
+          backgroundColor: getColorFromLabel(ds.label),
+          borderColor: getColorFromLabel(ds.label),
+          borderWidth: 1
+        }))
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          datalabels: {
+            anchor: 'end',
+            align: 'top',
+            formatter: Math.round,
+            font: { weight: 'bold' }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Cajas Faltantes' }
+          },
+          x: {
+            title: { display: true, text: 'Pedidos' }
+          }
+        }
+      }
+    });
+  }
+
+  buildChart('gpChart', gpDatasets);
+  buildChart('clChart', clDatasets);
+</script>
+
+<%- include('partials/footer') %>

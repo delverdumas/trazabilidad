@@ -1,0 +1,163 @@
+<!-- views/createOrder.ejs -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nuevo Pedido</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="orders-form-container">
+    <h2 class="form-title">Nuevo Pedido</h2>
+    <% if (error) { %>
+      <div class="error-message"><%= error %></div>
+    <% } %>
+    <form id="orderForm" action="/orders/create" method="POST" class="order-form">
+      <!-- Cliente -->
+      <div class="form-group">
+        <label for="client_id">Cliente:</label>
+        <select name="client_id" id="client_id" class="form-select" required>
+          <option value="">-- Seleccione cliente --</option>
+          <% clients.forEach(c => { %>
+            <option value="<%= c.client_id %>" <%= formData.client_id == c.client_id ? 'selected' : '' %>>
+              <%= c.name %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Tipo de Cartón -->
+      <div class="form-group">
+        <label for="carton_type_id">Tipo de Cartón:</label>
+        <select name="carton_type_id" id="carton_type_id" class="form-select" required>
+          <option value="">-- Seleccione tipo --</option>
+          <% cartonTypes.forEach(ct => { %>
+            <option value="<%= ct.carton_type_id %>" <%= formData.carton_type_id == ct.carton_type_id ? 'selected' : '' %>>
+              <%= ct.name %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Altura -->
+      <div class="form-group">
+        <label for="height_id">Altura:</label>
+        <select name="height_id" id="height_id" class="form-select" required>
+          <option value="">-- Seleccione altura --</option>
+          <% heights.forEach(h => { %>
+            <option value="<%= h.height_id %>" <%= formData.height_id == h.height_id ? 'selected' : '' %>>
+              <%= h.quantity %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Semana -->
+      <div class="form-group">
+        <label for="week">Semana:</label>
+        <input
+          type="number"
+          name="week"
+          id="week"
+          class="form-input"
+          value="<%= formData.week || '' %>"
+          min="1"
+          max="53"
+          required
+        />
+      </div>
+
+      <!-- Cantidad -->
+      <div class="form-group">
+        <label for="quantity">Cantidad:</label>
+        <input type="number" name="quantity" id="quantity" class="form-control" required
+               value="<%= formData.quantity || '' %>" />
+      </div>
+
+      <!-- GP -->
+      <h3>Tipo de Pedido GP</h3>
+      <div class="calibres-group">
+        <% for (let c = 5; c <= 10; c++) { %>
+          <div class="form-group calibre-input">
+            <label for="gp_calibre<%= c %>">Calibre <%= c %>:</label>
+            <input
+              type="number"
+              name="gp_calibre<%= c %>"
+              id="gp_calibre<%= c %>"
+              class="form-control gp-field"
+              value="<%= formData['gp_calibre'+c] != null ? formData['gp_calibre'+c] : 0 %>"
+              min="0"
+            />
+          </div>
+        <% } %>
+      </div>
+
+      <!-- CL -->
+      <h3>Tipo de Pedido CL</h3>
+      <div class="calibres-group">
+        <% for (let c = 5; c <= 10; c++) { %>
+          <div class="form-group calibre-input">
+            <label for="cl_calibre<%= c %>">Calibre <%= c %>:</label>
+            <input
+              type="number"
+              name="cl_calibre<%= c %>"
+              id="cl_calibre<%= c %>"
+              class="form-control cl-field"
+              value="<%= formData['cl_calibre'+c] != null ? formData['cl_calibre'+c] : 0 %>"
+              min="0"
+            />
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Botones -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">Guardar Pedido</button>
+        <a href="/dashboard" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+
+    <div class="back-button-container">
+      <a href="/dashboard" class="btn btn-primary btn-back">Inicio</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+      const qty       = parseInt(document.getElementById('quantity').value, 10) || 0;
+      const heightSel = document.getElementById('height_id');
+      const heightQty = parseInt(heightSel.options[heightSel.selectedIndex].text, 10);
+
+      // 1. Cantidad múltiplo de altura
+      if (qty % heightQty !== 0) {
+        e.preventDefault();
+        alert(`La cantidad total (${qty}) debe ser un múltiplo de la altura seleccionada (${heightQty}).`);
+        return;
+      }
+
+      // 2. Cada calibre múltiplo de altura
+      let sum = 0;
+      let invalid = false;
+      document.querySelectorAll('.gp-field, .cl-field').forEach(input => {
+        const val = parseInt(input.value, 10) || 0;
+        if (val % heightQty !== 0) {
+          invalid = true;
+          alert(`El valor de "${input.previousElementSibling.textContent}" debe ser múltiplo de ${heightQty}.`);
+        }
+        sum += val;
+      });
+      if (invalid) {
+        e.preventDefault();
+        return;
+      }
+
+      // 3. Suma EXACTA (ya existente)
+      if (sum !== qty) {
+        e.preventDefault();
+        alert(`La suma de calibres (${sum}) debe ser EXACTAMENTE igual a la cantidad total (${qty}).`);
+      }
+    });
+  </script>
+</body>
+</html>

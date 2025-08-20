@@ -1,0 +1,65 @@
+<!-- views/users.ejs -->
+<%- include('partials/header') %>
+
+<!-- Contenedor principal para la sección de usuarios -->
+<div class="orders-container">
+  <!-- Encabezado de la sección con título y botón de creación -->
+  <div class="orders-header">
+    <h1>Usuarios</h1>
+    <!-- Enlace para crear un nuevo usuario -->
+    <a href="/users/create" class="btn btn-primary">+ Nuevo Usuario</a>
+  </div>
+
+  <!-- Wrapper para la tabla de usuarios -->
+  <div class="table-wrapper">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <!-- Columna para ID -->
+          <th class="col-id">ID</th>
+          <!-- Columna para nombre de usuario -->
+          <th>Usuario</th>
+          <!-- Columna para nombre completo -->
+          <th>Nombre</th>
+          <!-- Columna para número de cédula -->
+          <th>Cédula</th>
+          <!-- Columna para rol -->
+          <th>Rol</th>
+          <!-- Columna para acciones (editar, eliminar) -->
+          <th class="col-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Si no hay usuarios, mostrar mensaje de 'sin datos' -->
+        <% if (!users || users.length === 0) { %>
+          <tr>
+            <td colspan="6" class="no-data">No hay usuarios registrados.</td>
+          </tr>
+        <% } else { %>
+          <!-- Iterar cada usuario y generar una fila -->
+          <% users.forEach(user => { %>
+            <tr>
+              <td class="col-id"><%= user.id %></td>
+              <td><%= user.username %></td>
+              <td><%= user.nombre %></td>
+              <td><%= user.cedula %></td>
+              <td><%= user.role %></td>
+              <td class="col-actions">
+                <div class="actions-wrapper">
+                  <!-- Botón para editar usuario -->
+                  <a href="/users/<%= user.id %>/edit" class="btn btn-edit">Editar</a>
+                  <!-- Formulario para eliminar usuario con confirmación -->
+                  <form action="/users/<%= user.id %>/delete" method="POST" class="delete-form" onsubmit="return confirm('¿Eliminar este usuario?')">
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

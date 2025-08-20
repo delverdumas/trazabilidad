@@ -1,0 +1,85 @@
+<%- include('partials/header') %>
+
+<!-- Contenedor principal para el formulario de creación de usuarios -->
+<div class="orders-form-container">
+  <!-- Título de la sección -->
+  <h2 class="form-title">Nuevo Usuario</h2>
+
+  <!-- Mostrar mensaje de error si existe -->
+  <% if (error) { %>
+    <div class="error-message"><%= error %></div>
+  <% } %>
+
+  <!-- Formulario POST para crear un nuevo usuario -->
+  <form action="/users/create" method="POST" class="user-form">
+    <!-- Campo de nombre de usuario sin espacios -->
+    <div class="form-group">
+      <label for="username">Usuario (sin espacios):</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        required
+        autofocus
+        placeholder="ej. jdoe123"
+      />
+    </div>
+
+    <!-- Campo de contraseña (mínimo 4 caracteres) -->
+    <div class="form-group">
+      <label for="password">Contraseña (mín 4 caracteres, sin espacios):</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+        placeholder="••••••"
+      />
+    </div>
+
+    <!-- Selección de rol basado en la lista proporcionada -->
+    <div class="form-group">
+      <label for="role_id">Rol:</label>
+      <select name="role_id" id="role_id" class="form-select" required>
+        <option value="">-- Seleccione Rol --</option>
+        <% roles.forEach(r => { %>
+          <option value="<%= r.id %>"><%= r.name %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <!-- Nuevo campo de Nombre Completo -->
+    <div class="form-group">
+      <label for="nombre">Nombre Completo:</label>
+      <input
+        type="text"
+        id="nombre"
+        name="nombre"
+        class="form-control"
+        required
+        placeholder="Nombre y Apellidos"
+      />
+    </div>
+
+    <!-- Nuevo campo de Cédula -->
+    <div class="form-group">
+      <label for="cedula">Cédula:</label>
+      <input
+        type="text"
+        id="cedula"
+        name="cedula"
+        class="form-control"
+        required
+        placeholder="Número de cédula"
+      />
+    </div>
+
+    <!-- Botones de acción: crear o volver -->
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Crear</button>
+      <a href="/users" class="btn btn-secondary ml-2">Volver</a>
+    </div>
+  </form>
+</div>
+
+<%- include('partials/footer') %>

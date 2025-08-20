@@ -1,0 +1,77 @@
+<%- include('partials/header') %>
+
+<!-- views/editUser.ejs -->
+<!-- Contenedor principal para el formulario de edición de usuario -->
+<div class="orders-form-container">
+  <!-- Título de la sección -->
+  <h2 class="form-title">Editar Usuario</h2>
+
+  <!-- Mostrar mensaje de error si existe -->
+  <% if (error) { %>
+    <div class="error-message"><%= error %></div>
+  <% } %>
+
+  <!-- Formulario POST para actualizar datos del usuario -->
+  <form action="/users/<%= user.id %>/edit" method="POST" class="user-form">
+    <!-- Campo de contraseña: mínimo 4 caracteres, sin espacios -->
+    <div class="form-group">
+      <label for="password">Contraseña (mín 4 caracteres, sin espacios):</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+        placeholder="••••••"
+      />
+    </div>
+
+    <!-- Selección de rol con opción preseleccionada -->
+    <div class="form-group">
+      <label for="role_id">Rol:</label>
+      <select name="role_id" id="role_id" class="form-select" required>
+        <% roles.forEach(r => { %>
+          <!-- Marcar rol actual como 'selected' -->
+          <option value="<%= r.id %>" <%= r.id === user.role_id ? 'selected' : '' %>>
+            <%= r.name %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <!-- Nuevo campo de Nombre Completo -->
+    <div class="form-group">
+      <label for="nombre">Nombre Completo:</label>
+      <input
+        type="text"
+        id="nombre"
+        name="nombre"
+        class="form-control"
+        required
+        placeholder="Nombre y Apellidos"
+        value="<%= user.nombre %>"
+      />
+    </div>
+
+    <!-- Nuevo campo de Cédula -->
+    <div class="form-group">
+      <label for="cedula">Cédula:</label>
+      <input
+        type="text"
+        id="cedula"
+        name="cedula"
+        class="form-control"
+        required
+        placeholder="Número de cédula"
+        value="<%= user.cedula %>"
+      />
+    </div>
+
+    <!-- Botones de acción: actualizar o volver al listado -->
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Actualizar</button>
+      <a href="/users" class="btn btn-secondary ml-2">Volver</a>
+    </div>
+  </form>
+</div>
+
+<%- include('partials/footer') %>

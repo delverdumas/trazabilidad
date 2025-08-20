@@ -1,0 +1,70 @@
+<!-- views/pallets.ejs -->
+<%- include('partials/header') %>
+
+<!-- Contenedor principal para la lista de paletas -->
+<div class="table-container">
+  <!-- Acción rápida: crear nueva paleta -->
+  <div class="actions">
+    <a href="/production/new" class="btn btn-edit">Nueva Paleta</a>
+  </div>
+
+  <!-- Título de la página -->
+  <h1 class="page-title">Listado de Paletas</h1>
+
+  <!-- Tabla responsiva de paletas -->
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>#Paleta</th>
+          <th>Pedido</th>
+          <th>Cliente</th>
+          <th>Cartón</th>
+          <th>Altura</th>
+          <th>Tipo</th>
+          <th>Calibre</th>
+          <th>Cantidad</th>
+          <th>Estado</th>
+          <th>Fecha y Hora</th>
+          <th class="actions-cell">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% pallets.forEach(p => { %>
+          <% ['GP','CL'].forEach(type => { %>
+            <% [5,6,7,8,9,10].forEach(c => {
+                 const qty = p['cantidad_' + type.toLowerCase() + '_' + c];
+                 if (qty > 0) { %>
+              <tr>
+                <td><%= p.numero_paleta %></td>
+                <td><%= p.order_id %></td>
+                <td><%= p.client_name %></td>
+                <td><%= p.carton_type_name %></td>
+                <td><%= p.height %></td>
+                <td><%= type %></td>
+                <td><%= c %></td>
+                <td><%= qty %></td>
+                <td><%= p.estado %></td>
+                <td><%= p.created_at.toLocaleString() %></td>
+                <td class="actions-cell">
+                  <a href="/production/<%= p.numero_paleta %>/edit" class="btn btn-edit-sm">Editar</a>
+                  <form action="/production/<%= p.numero_paleta %>/delete" method="POST" class="d-inline">
+                    <button
+                      type="submit"
+                      class="btn btn-delete-sm"
+                      onclick="return confirm('¿Eliminar paleta #<%= p.numero_paleta %>?');"
+                    >
+                      Eliminar
+                    </button>
+                  </form>
+                </td>
+              </tr>
+        <%       } }); %>
+          <% }); %>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

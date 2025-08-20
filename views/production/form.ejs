@@ -1,0 +1,75 @@
+<%- include('../partials/header') %>
+<%- include('../partials/messages') %>
+
+<div class="container d-flex flex-column align-items-center mt-4">
+  <h1 class="display-4 mb-3">Paleta #<%= nextPaleta %></h1>
+  <form action="/production/new" method="post" class="w-50">
+    <div class="form-group mb-3">
+      <label for="order_id">Pedido pendiente</label>
+      <select id="order_id" name="order_id" class="form-control" required>
+        <option value="">— Selecciona un pedido —</option>
+        <% orders.forEach(o => { %>
+          <option value="<%= o.order_id %>" <%= selectedOrder && selectedOrder.order_id===o.order_id? 'selected':'' %>>
+            Pedido #<%= o.order_id %> — <%= o.client_name %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <% if (selectedOrder) { %>
+      <div class="text-center mb-4">
+        <p><strong>Cliente:</strong> <%= selectedOrder.client_name %></p>
+        <p><strong>Tipo de Cartón:</strong> <%= selectedOrder.carton_type_name %></p>
+        <p><strong>Altura:</strong> <%= selectedOrder.height %></p>
+      </div>
+
+      <% if (gpCalibers.length) { %>
+        <fieldset class="mb-3">
+          <legend>GP</legend>
+          <% gpCalibers.forEach(item => { %>
+            <div class="form-group">
+              <label for="cantidad_gp_<%= item.calibre %>"><%= item.calibre %> GP</label>
+              <input
+                id="cantidad_gp_<%= item.calibre %>"
+                name="cantidad_gp_<%= item.calibre %>"
+                type="number"
+                class="form-control"
+                min="0"
+                max="<%= selectedOrder.height %>"
+                value="0"
+              >
+            </div>
+          <% }) %>
+        </fieldset>
+      <% } %>
+      <% if (clCalibers.length) { %>
+        <fieldset class="mb-3">
+          <legend>CL</legend>
+          <% clCalibers.forEach(item => { %>
+            <div class="form-group">
+              <label for="cantidad_cl_<%= item.calibre %>"><%= item.calibre %> CL</label>
+              <input
+                id="cantidad_cl_<%= item.calibre %>"
+                name="cantidad_cl_<%= item.calibre %>"
+                type="number"
+                class="form-control"
+                min="0"
+                max="<%= selectedOrder.height %>"
+                value="0"
+              >
+            </div>
+          <% }) %>
+        </fieldset>
+      <% } %>
+      <div class="text-center">
+        <button type="submit" class="btn btn-success">Registrar Paleta</button>
+      </div>
+    <% } %>
+  </form>
+</div>
+<script>
+  document.getElementById('order_id').addEventListener('change', e => {
+    location.href = '/production/new?order_id=' + e.target.value;
+  });
+</script>
+<%- include('../partials/footer') %>
